@@ -1,3 +1,31 @@
+<?php
+session_start();
+require("dbUsers.php");
+//cek cookie
+if(isset($_COOKIE['token'])) {
+  $token = $_COOKIE['token'];
+  $result = $db->readUser();
+
+  if ($result->num_rows > 0) {
+    // output data of each row
+    while($row = $result->fetch_assoc()) {
+      $target = hash('sha256', $row["email"]);
+      if($token === $target) {
+        $_SESSION['login'] = true;
+        break;
+      } else {
+        $_SESSION['login'] = false;
+      }
+    }
+  }
+}
+
+if (isset($_SESSION["login"])) {
+  header("Location: home.php");
+  exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -6,7 +34,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous" />
+    <link rel="stylesheet" href="css/bootstrap.css">
 
     <title>Project PBW A3</title>
   </head>
@@ -99,7 +127,7 @@
           <p class="fs-5">Make planting and environmental actions easy, safe and transparent.
             Start Planting Your Tree.</p>
           <p class="fs-5">Donate Without Minimum!</p>
-          <a class="btn btn-warning" role="button">Donate Now</a>
+          <a class="btn btn-warning" href="login.php" role="button">Donate Now</a>
         </div>
         </div>
       </div>
@@ -140,7 +168,9 @@
     <!-- Footer -->
     <footer class="text-center fst-italic" style="background-color: rgb(241, 235, 235);">Copyright @Greeny</footer>
     <!-- Akhir Footer -->
+    
+    <script src="js/bootstrap.js"></script>
+    <script src="js/popper.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
   </body>
 </html>

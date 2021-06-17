@@ -1,3 +1,14 @@
+<?php
+session_start();
+
+if ( !isset($_SESSION["login"])) {
+    header("Location: index.php");
+    exit;
+}
+
+require("dbDataDonate.php")
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -6,7 +17,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous" />
+    <link rel="stylesheet" href="css/bootstrap.css">
 
     <title>UAS PBW Kelompok 3</title>
   </head>
@@ -24,7 +35,7 @@
             <a class="nav-link active" href="#about">About</a>
             <a class="nav-link active" href="#donation">Donation</a>
             <a class="nav-link active" href="#contact">Contact</a>
-            <a class="nav-link active" href="index.php"><img src="img/logout.png">Logout</a>
+            <a class="nav-link active" href="logout.php"><img src="img/logout.png">Logout</a>
           </div>
         </div>
       </div>
@@ -34,7 +45,25 @@
     <!-- Jumbotron -->
     <section class="jumbotron text-center" style="background-color: rgb(197, 245, 229); padding-top: 2rem;">
         <img src="img/bg.jpg" alt="Tree" width="250" class="rounded-circle img-thumbnail mt-5" />
-        <p class="display-6">Hello, Greeniers!</hp>
+        <?php
+
+        require("dbUsers.php");
+        $token = $_COOKIE['token'];
+        $result = $db->readUser();
+
+        if ($result->num_rows > 0) {
+          // output data of each row
+          while($row = $result->fetch_assoc()) {
+            $target = $row["email"];
+            $hased = hash('sha256', $target);
+            if($token === $hased) {
+              $user = $target;
+              break;
+            }
+          }
+        }
+        ?>
+        <p class="display-6">Hello, <?php echo "$user" ?></hp>
         <p class="lead">Let's plant one million trees for Indonesia!</p>
         <hr class="my-4" />
             
@@ -43,10 +72,13 @@
                 <thead> My History Donation </thead>
                     <tbody>
                         <tr>
-                            <td>No</td>
-                            <td>Donation Amount</td>
-                            <td>Payment Method</td>
-                          </tr>
+                          <th>ID Transaksi</th>
+                          <th>Donation Amount</th>
+                          <th>Payment Method</th>
+                        </tr>
+                        <?php
+                        $dbData->readDonate();
+                        ?>
                     </tbody>
             </table>
         </div>
@@ -153,6 +185,7 @@
       <footer class="text-center fst-italic" style="background-color: rgb(241, 235, 235);">Copyright @Greeny</footer>
       <!-- Akhir Footer -->
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+      <script src="js/bootstrap.js"></script>
+      <script src="js/popper.min.js"></script>
   </body>
 </html>

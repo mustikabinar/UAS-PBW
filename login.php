@@ -1,3 +1,40 @@
+<?php
+session_start();
+require("dbUsers.php");
+//cek cookie
+if(isset($_COOKIE['token'])) {
+  $token = $_COOKIE['token'];
+  $result = $db->readUser();
+  
+  if ($result->num_rows > 0) {
+    // output data of each row
+    while($row = $result->fetch_assoc()) {
+      $target = hash('sha256', $row["email"]);
+      if($token === $target) {
+        $_SESSION['login'] = true;
+        break;
+      } else {
+        $_SESSION['login'] = false;
+      }
+    }
+  }
+}
+
+if (isset($_SESSION["login"])) {
+  header("Location: home.php");
+  exit;
+}
+
+if(isset($_POST["login"])) {
+
+  $email = $_POST["email"];
+  $passwd = $_POST["passwd"];
+  
+  $db->loginUser($email, $passwd);
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -6,7 +43,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous" />
+    <link rel="stylesheet" href="css/bootstrap.css">
 
     <title>Login</title>
   </head>
@@ -21,9 +58,9 @@
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div class="navbar-nav ms-auto">
             <a class="nav-link active" aria-current="page" href="index.php">Home</a>
-            <a class="nav-link active" href="#about">About</a>
+            <a class="nav-link active" href="index.php#about">About</a>
             <a class="nav-link active" href="#donation">Donation</a>
-            <a class="nav-link active" href="#adress">Adress</a>
+            <a class="nav-link active" href="index.php#contact">Contact</a>
           </div>
         </div>
       </div>
@@ -31,27 +68,28 @@
     <!-- Akhir Navigasi -->
 
     <!-- Formulir -->
-    <div class="container-md">
+    <div class="container-md d-flex justify-content-center">
       <div align="center">
-        <form class="mt-5">
+        <form class="mt-5" action="" method="post">
           <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Your Email</label>
-            <input type="email" class="form-control-sm" id="exampleInputEmail1" aria-describedby="emailHelp" />
-            <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+            <label for="exampleInputEmail1" class="form-label">Email</label>
+            <input type="email" class="form-control-sm" id="exampleInputEmail1" aria-describedby="emailHelp" name="email" />
           </div>
           <div class="mb-3">
             <label for="exampleInputPassword1" class="form-label">Password</label>
-            <input type="password" class="form-control-sm" id="exampleInputPassword1" />
+            <input type="password" class="form-control-sm" id="exampleInputPassword1" name="passwd" />
           </div>
           <button type="submit" name="login" class="btn btn-warning">Login</button>
         </form>
 
         <p class="mt-3">Or</p>
-        <a class="btn btn-outline-warning" href="register.php" role="button">Create New Account</a>
+        <a class="btn btn-outline-warning" href="register.php" role="button">Buat Akun Baru</a>
       </div>
     </div>
     <!-- Akhir Formulir -->
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/popper.min.js"></script>
+    
   </body>
 </html>
